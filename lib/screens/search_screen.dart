@@ -106,10 +106,10 @@ class _SearchScreenState extends State<SearchScreen> {
       itemBuilder: (context, index) {
         final book = _books[index];
         return Card(
-          elevation: 2, // Sombra sutil
+          elevation: 2,
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: InkWell( // InkWell adiciona o efeito de ripple (onda) ao clicar
+          child: InkWell( 
             borderRadius: BorderRadius.circular(12),
             onTap: () {
               Navigator.push(

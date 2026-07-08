@@ -5,7 +5,7 @@ import '../services/api_service.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final Book book;
-  final String tagPrefix; // Usado para a animação Hero não dar conflito entre busca e favoritos
+  final String tagPrefix;
 
   const BookDetailScreen({super.key, required this.book, this.tagPrefix = 'search_'});
 
