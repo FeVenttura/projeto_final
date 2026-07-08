@@ -1,16 +1,16 @@
 # Curso 
     
-    * Análise e Desenvolvimento de Sistemas
+    - Análise e Desenvolvimento de Sistemas
 
 # Matriz Curricular
     
-    * Desenvolvimento para Dispositivos Móveis
+    - Desenvolvimento para Dispositivos Móveis
 
 # Alunos
 
-    * Fernando Ventura. GitHub: https://github.com/FeVenttura
-    * Jonathan Antonio Marcilio. GitHub: https://github.com/JonathanAntonioMarcilio
-    * Lucas Medeira. GitHub: https://github.com/MedeiraLucas
+    - Fernando Ventura.           GitHub: https://github.com/FeVenttura
+    - Jonathan Antonio Marcilio.  GitHub: https://github.com/JonathanAntonioMarcilio
+    - Lucas Medeira.              GitHub: https://github.com/MedeiraLucas
 
 # Tecnologias Utilizadas
 
