@@ -60,7 +60,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => BookDetailScreen(book: book)),
-                          ).then((_) => _loadFavorites()); // Atualiza caso remova na tela de detalhes
+                          ).then((_) => _loadFavorites());
                         },
                       ),
                     );
