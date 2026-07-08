@@ -5,8 +5,9 @@ import '../services/api_service.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final Book book;
+  final String tagPrefix; // Usado para a animação Hero não dar conflito entre busca e favoritos
 
-  const BookDetailScreen({super.key, required this.book});
+  const BookDetailScreen({super.key, required this.book, this.tagPrefix = 'search_'});
 
   @override
   State<BookDetailScreen> createState() => _BookDetailScreenState();
@@ -51,9 +52,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _checkFavorite();
     
     if (!mounted) return;
+    
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isFavorite ? 'Removido dos favoritos.' : 'Adicionado aos favoritos!'),
+        content: Row(
+          children: [
+            Icon(_isFavorite ? Icons.favorite_border : Icons.favorite, color: Colors.white),
+            const SizedBox(width: 12),
+            Text(_isFavorite ? 'Removido dos favoritos' : 'Adicionado aos favoritos!'),
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -62,68 +73,122 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalhes do Livro')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (widget.book.coverUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  widget.book.coverUrl,
-                  height: 300,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => const Icon(Icons.menu_book, size: 100, color: Colors.grey),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 280.0, 
+            pinned: true,
+            stretch: true,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(left: 48, right: 16, bottom: 16),
+              title: Text(
+                widget.book.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(color: Colors.black87, blurRadius: 4)],
                 ),
-              )
-            else
-              const Icon(Icons.menu_book, size: 100, color: Colors.grey),
-            const SizedBox(height: 24),
-            Text(
-              widget.book.title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Autor: ${widget.book.author}',
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Primeira Publicação: ${widget.book.publishYear}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 16),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Sinopse / Sobre a Obra',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 40.0, top: 16.0), 
+                    child: Hero(
+                      tag: '${widget.tagPrefix}${widget.book.id}',
+                      child: widget.book.coverUrl.isNotEmpty
+                          ? Image.network(
+                              widget.book.coverUrl,
+                              fit: BoxFit.contain, 
+                              errorBuilder: (c, e, s) => const Icon(Icons.menu_book, size: 100, color: Colors.grey),
+                            )
+                          : const Icon(Icons.menu_book, size: 100, color: Colors.grey),
+                    ),
+                  ),
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black87],
+                        stops: [0.6, 1.0], 
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            _isLoadingDescription
-                ? const Center(child: CircularProgressIndicator())
-                : Text(
-                    _description,
-                    textAlign: TextAlign.justify,
-                    style: const TextStyle(fontSize: 16, height: 1.5),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.book.title,
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Por ${widget.book.author}',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Publicado em: ${widget.book.publishYear ?? 'N/D'}',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-            const SizedBox(height: 80), 
-          ],
-        ),
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Sinopse / Sobre a Obra',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    child: _isLoadingDescription
+                        ? const Padding(padding: EdgeInsets.all(32.0), child: Center(child: CircularProgressIndicator()))
+                        : Text(
+                            _description.isNotEmpty ? _description : 'Sinopse não disponível para esta obra.',
+                            textAlign: TextAlign.justify,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6, color: Colors.grey.shade800),
+                          ),
+                  ),
+                  const SizedBox(height: 80), 
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _toggleFavorite,
+        elevation: 4,
         icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border),
-        label: Text(_isFavorite ? 'Remover Favorito' : 'Favoritar'),
-        backgroundColor: _isFavorite ? Colors.red.shade100 : null,
-        foregroundColor: _isFavorite ? Colors.red : null,
+        label: Text(_isFavorite ? 'Salvo' : 'Favoritar'),
+        backgroundColor: _isFavorite ? Theme.of(context).colorScheme.errorContainer : Theme.of(context).colorScheme.primaryContainer,
+        foregroundColor: _isFavorite ? Theme.of(context).colorScheme.onErrorContainer : Theme.of(context).colorScheme.onPrimaryContainer,
       ),
     );
   }
